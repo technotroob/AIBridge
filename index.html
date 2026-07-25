@@ -1,0 +1,3067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Bridge — Switch AI models, not your progress | Chrome Extension</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="AI Bridge — Switch AI models, not your progress | Chrome Extension">
+  <meta name="description" content="Never lose your AI conversation context again. AI Bridge automatically extracts key context from ChatGPT, Claude, Gemini, Grok, DeepSeek, and Perplexity to generate structured continuation prompts with one click.">
+  <meta name="keywords" content="AI Bridge, Chrome Extension, ChatGPT context transfer, Claude prompt continuations, Gemini switch context, AI productivity tool, prompt manager, cross-platform AI context, DeepSeek prompt continuation, Perplexity AI bridge">
+  <meta name="author" content="AI Bridge Team">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://aibridge.app/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aibridge.app/">
+  <meta property="og:title" content="AI Bridge — Switch AI models, not your progress">
+  <meta property="og:description" content="Seamlessly bridge conversations between ChatGPT, Claude, Gemini, Grok, DeepSeek, and Perplexity without repeating context. Free Chrome Extension.">
+  <meta property="og:image" content="https://aibridge.app/og-image.jpg">
+
+  <!-- Twitter Card -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://aibridge.app/">
+  <meta property="twitter:title" content="AI Bridge — Switch AI models, not your progress">
+  <meta property="twitter:description" content="Seamlessly bridge conversations between ChatGPT, Claude, Gemini, Grok, DeepSeek, and Perplexity without repeating context. Free Chrome Extension.">
+  <meta property="twitter:image" content="https://aibridge.app/og-image.jpg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AI Bridge",
+    "operatingSystem": "Chrome OS, Windows, macOS, Linux",
+    "applicationCategory": "Browser Extension",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "AI Bridge is a Chrome extension that extracts conversation context from ChatGPT, Claude, Gemini, Grok, and DeepSeek, generating a structured prompt to continue seamlessly on another AI platform.",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "1280"
+    }
+  }
+  </script>
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --accent: #7C3AED;
+      --accent-light: #F3E8FF;
+      --bg: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --text-dark: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --border-focus: #C7D2FE;
+      --success: #10B981;
+      --success-bg: #ECFDF5;
+      
+      --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 25px -5px rgba(79, 70, 229, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+      --shadow-glow: 0 0 35px rgba(79, 70, 229, 0.25);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text-dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-heading);
+      color: var(--text-dark);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    button {
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    /* Container Utility */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .section-title-wrap {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 3.5rem auto;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      padding: 0.875rem 1.75rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45);
+      background: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
+    }
+
+    .btn-secondary {
+      background: var(--bg-subtle);
+      color: var(--text-dark);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+      transform: translateY(-2px);
+    }
+
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+      transform: rotate(30deg);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-glow:hover::after {
+      opacity: 1;
+    }
+
+    /* Gradient Text */
+    .text-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Glass Card Style */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Scroll Reveal Effect */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      padding: 1rem 0;
+      transition: all var(--transition-normal);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+    }
+
+    .header.scrolled {
+      padding: 0.75rem 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color var(--transition-fast);
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Mobile Hamburger Menu */
+    .mobile-menu-btn {
+      display: none;
+      padding: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1050;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      bottom: 0;
+      width: 300px;
+      background: var(--bg);
+      z-index: 1100;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+      transition: right var(--transition-normal);
+    }
+
+    .mobile-nav-drawer.open {
+      right: 0;
+    }
+
+    .mobile-nav-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      list-style: none;
+    }
+
+    .mobile-nav-links a {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero {
+      position: relative;
+      padding: 5rem 0 6rem 0;
+      background: radial-gradient(100% 100% at 50% 0%, rgba(124, 58, 237, 0.06) 0%, rgba(255, 255, 255, 0) 80%);
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-full);
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      color: var(--primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hero-headline {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.12;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-subheadline {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 2.25rem;
+      max-width: 580px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-trust-proof {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .stars {
+      display: flex;
+      gap: 0.2rem;
+      color: #F59E0B;
+    }
+
+    .trust-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .trust-text strong {
+      color: var(--text-dark);
+    }
+
+    /* Hero Mockup Graphic */
+    .hero-mockup-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mockup-card {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .mockup-header {
+      background: #0F172A;
+      color: white;
+      padding: 0.875rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mockup-header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .mockup-body {
+      padding: 1.5rem;
+    }
+
+    .mockup-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding: 0.875rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+
+    .mockup-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mockup-step-content h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .mockup-step-content p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .mockup-action-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      animation: pulse-glow 2.5s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+      50% { box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5); }
+    }
+
+    /* Floating AI Platform Icons */
+    .floating-icon {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #FFFFFF;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .float-1 { top: -20px; left: -25px; animation-delay: 0s; }
+    .float-2 { bottom: 30px; left: -35px; animation-delay: 1s; }
+    .float-3 { top: 40px; right: -25px; animation-delay: 2s; }
+    .float-4 { bottom: -15px; right: -15px; animation-delay: 1.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(3deg); }
+    }
+
+    /* ==========================================================================
+       TRUST BAR
+       ========================================================================== */
+    .trust-bar {
+      padding: 3rem 0;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .trust-title {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.75rem;
+    }
+
+    .platform-logos-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2.5rem 3.5rem;
+    }
+
+    .platform-logo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #334155;
+      opacity: 0.85;
+      transition: all var(--transition-fast);
+      cursor: default;
+    }
+
+    .platform-logo-item:hover {
+      opacity: 1;
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .platform-logo-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ==========================================================================
+       PROBLEM SECTION
+       ========================================================================== */
+    .problem-section {
+      padding: 7rem 0;
+      background: #FFFFFF;
+    }
+
+    .flow-diagram-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+      position: relative;
+    }
+
+    .flow-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .flow-card.warning-card {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+    }
+
+    .flow-card.danger-card {
+      background: #FFF1F2;
+      border-color: #FECDD3;
+    }
+
+    .flow-step-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: white;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem auto;
+      color: var(--primary);
+    }
+
+    .warning-card .flow-step-icon {
+      color: #EF4444;
+    }
+
+    .flow-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .flow-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .flow-arrow {
+      position: absolute;
+      top: 50%;
+      right: -18px;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 32px;
+      height: 32px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Comparison Banner */
+    .comparison-banner {
+      margin-top: 4rem;
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .comparison-col h4 {
+      color: #94A3B8;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .comparison-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .comparison-list.bad li svg { color: #F87171; }
+    .comparison-list.good li svg { color: #34D399; }
+
+    /* ==========================================================================
+       SOLUTION SECTION (MEET AI BRIDGE)
+       ========================================================================== */
+    .solution-section {
+      padding: 7rem 0;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+    }
+
+    .timeline-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 2rem;
+      align-items: flex-start;
+      background: white;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-normal);
+    }
+
+    .timeline-item:hover {
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-md);
+      transform: translateX(6px);
+    }
+
+    .timeline-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: var(--font-heading);
+    }
+
+    .timeline-content h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-content p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       FEATURES SECTION
+       ========================================================================== */
+    .features-section {
+      padding: 7rem 0;
+      background: #FFFFFF;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .feature-card {
+      padding: 2.25rem 1.75rem;
+      border-radius: var(--radius-lg);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border-focus);
+    }
+
+    .feature-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       INTERACTIVE HOW IT WORKS
+       ========================================================================== */
+    .how-it-works-section {
+      padding: 7rem 0;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .interactive-timeline {
+      max-width: 960px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 3rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .steps-indicator-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-bottom: 3rem;
+    }
+
+    .steps-indicator-bar::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--border);
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+
+    .steps-progress-fill {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transform: translateY(-50%);
+      z-index: 2;
+      transition: width var(--transition-normal);
+      width: 0%;
+    }
+
+    .step-dot {
+      position: relative;
+      z-index: 3;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .step-dot.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    }
+
+    .step-dot.completed {
+      border-color: var(--primary);
+      background: white;
+      color: var(--primary);
+    }
+
+    .step-display-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .step-display-info h3 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .step-display-info p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .step-display-visual {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      text-align: center;
+    }
+
+    .step-display-visual svg {
+      width: 64px;
+      height: 64px;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    /* ==========================================================================
+       GENERATED PROMPT SHOWCASE
+       ========================================================================== */
+    .showcase-section {
+      padding: 7rem 0;
+      background: #FFFFFF;
+    }
+
+    .code-editor-wrapper {
+      max-width: 940px;
+      margin: 0 auto;
+      border-radius: var(--radius-lg);
+      background: #0F172A;
+      box-shadow: var(--shadow-lg), 0 20px 40px rgba(15, 23, 42, 0.3);
+      overflow: hidden;
+      border: 1px solid #1E293B;
+    }
+
+    .editor-topbar {
+      background: #1E293B;
+      padding: 0.875rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #EF4444; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-green { background: #10B981; }
+
+    .editor-title {
+      color: #94A3B8;
+      font-size: 0.85rem;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .copy-prompt-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all var(--transition-fast);
+    }
+
+    .copy-prompt-btn:hover {
+      background: var(--primary);
+    }
+
+    .editor-tabs {
+      display: flex;
+      background: #182234;
+      padding: 0 1rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .editor-tab {
+      padding: 0.75rem 1.25rem;
+      color: #94A3B8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-fast);
+    }
+
+    .editor-tab.active {
+      color: #FFFFFF;
+      border-bottom-color: var(--primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .editor-content-area {
+      padding: 2rem;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #E2E8F0;
+      overflow-x: auto;
+      max-height: 480px;
+    }
+
+    .prompt-section-header {
+      color: #A5B4FC;
+      font-weight: 700;
+      margin-top: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .prompt-label {
+      color: #38BDF8;
+      font-weight: 600;
+    }
+
+    .prompt-val {
+      color: #F1F5F9;
+    }
+
+    .prompt-bullet {
+      color: #34D399;
+      padding-left: 1.2rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #0F172A;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 2000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all var(--transition-normal);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       SUPPORTED PLATFORMS
+       ========================================================================== */
+    .platforms-section {
+      padding: 7rem 0;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+    }
+
+    .platforms-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.75rem;
+    }
+
+    .platform-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: all var(--transition-normal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .platform-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-focus);
+    }
+
+    .platform-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .platform-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .platform-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      background: var(--success-bg);
+      color: var(--success);
+      margin-bottom: 1rem;
+    }
+
+    .platform-badge.coming-soon {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .platform-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       BENEFITS SECTION
+       ========================================================================== */
+    .benefits-section {
+      padding: 7rem 0;
+      background: #FFFFFF;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.75rem;
+    }
+
+    .benefit-item {
+      padding: 2rem 1.5rem;
+      border-radius: var(--radius-lg);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: all var(--transition-normal);
+    }
+
+    .benefit-item:hover {
+      background: white;
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-md);
+    }
+
+    .benefit-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: white;
+      box-shadow: var(--shadow-sm);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem auto;
+    }
+
+    .benefit-item h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .benefit-item p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       PRIVACY SECTION
+       ========================================================================== */
+    .privacy-section {
+      padding: 7rem 0;
+      background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+      border-top: 1px solid var(--border);
+    }
+
+    .privacy-box {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem;
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .privacy-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .privacy-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      font-size: 1rem;
+      color: var(--text-dark);
+    }
+
+    .privacy-list li svg {
+      color: var(--success);
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .privacy-graphic {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 2.5rem;
+      border: 1px dashed var(--border-focus);
+      text-align: center;
+    }
+
+    .privacy-shield-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    /* ==========================================================================
+       TESTIMONIALS SECTION
+       ========================================================================== */
+    .testimonials-section {
+      padding: 7rem 0;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-normal);
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .testimonial-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .author-info h4 {
+      font-size: 1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .author-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .testimonial-quote {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .testimonial-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .verified-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* ==========================================================================
+       FAQ SECTION
+       ========================================================================== */
+    .faq-section {
+      padding: 7rem 0;
+      background: #FFFFFF;
+    }
+
+    .faq-accordion {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--transition-fast);
+    }
+
+    .faq-item.active {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 1.5rem;
+      text-align: left;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+    }
+
+    .faq-question svg {
+      transition: transform var(--transition-normal);
+      color: var(--text-muted);
+    }
+
+    .faq-item.active .faq-question svg {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-normal), padding var(--transition-normal);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      line-height: 1.65;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 300px;
+      padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+
+    /* ==========================================================================
+       FINAL CTA SECTION
+       ========================================================================== */
+    .final-cta-section {
+      padding: 6rem 0;
+      background: #FFFFFF;
+    }
+
+    .cta-banner {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #311042 100%);
+      border-radius: var(--radius-lg);
+      padding: 5rem 2rem;
+      text-align: center;
+      color: white;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .cta-banner h2 {
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .cta-banner p {
+      font-size: 1.2rem;
+      color: #CBD5E1;
+      max-width: 600px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .footer {
+      background: #0F172A;
+      color: #94A3B8;
+      padding: 5rem 0 2.5rem 0;
+      border-top: 1px solid #1E293B;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer-brand p {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    .footer-col h4 {
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-col a {
+      font-size: 0.9rem;
+      transition: color var(--transition-fast);
+    }
+
+    .footer-col a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #1E293B;
+      padding-top: 2rem;
+      font-size: 0.875rem;
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .footer-socials a {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #1E293B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: all var(--transition-fast);
+    }
+
+    .footer-socials a:hover {
+      background: var(--primary);
+    }
+
+    /* Back to Top Button */
+    .back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition-normal);
+      z-index: 900;
+    }
+
+    .back-to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      color: var(--primary);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        text-align: center;
+      }
+
+      .hero-content {
+        align-items: center;
+      }
+
+      .hero-subheadline {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-cta-group {
+        justify-content: center;
+      }
+
+      .hero-trust-proof {
+        justify-content: center;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .platforms-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .benefits-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .flow-diagram-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+      }
+
+      .flow-arrow {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta .btn {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero-headline {
+        font-size: 2.5rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .platforms-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .privacy-box {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+      }
+
+      .step-display-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-banner {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-diagram-container {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+
+    /* Accessibility / Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-message">Copied continuation prompt to clipboard!</span>
+  </div>
+
+  <!-- Back to Top Button -->
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <!-- Mobile Navigation Overlay & Drawer -->
+  <div id="mobile-overlay" class="mobile-nav-overlay"></div>
+  <aside id="mobile-drawer" class="mobile-nav-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        </div>
+        <span>AI Bridge</span>
+      </div>
+      <button id="mobile-close-btn" aria-label="Close Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="#features" class="mobile-link">Features</a></li>
+      <li><a href="#how-it-works" class="mobile-link">How It Works</a></li>
+      <li><a href="#platforms" class="mobile-link">Platforms</a></li>
+      <li><a href="#privacy" class="mobile-link">Privacy</a></li>
+      <li><a href="#faq" class="mobile-link">FAQ</a></li>
+    </ul>
+    <button class="btn btn-primary trigger-install-btn" style="width: 100%;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+      Install Extension
+    </button>
+  </aside>
+
+  <!-- Header / Navigation -->
+  <header id="header" class="header">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19L20 5M4 5l16 14"/></svg>
+        </div>
+        <span>AI Bridge</span>
+      </a>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#platforms">Platforms</a></li>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-cta">
+        <button class="btn btn-primary trigger-install-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Install Extension
+        </button>
+        <button id="mobile-toggle" class="mobile-menu-btn" aria-label="Open Navigation Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>Chrome Web Store Extension</span>
+        </div>
+        <h1 class="hero-headline">Never Lose Your AI Conversation Again</h1>
+        <p class="hero-subheadline">
+          Switch between ChatGPT, Claude, Gemini, Grok, Perplexity, DeepSeek, and other AI platforms without losing context. Automatically generate a structured continuation prompt with one click and continue your work instantly.
+        </p>
+
+        <div class="hero-cta-group">
+          <button class="btn btn-primary btn-glow trigger-install-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Install on Chrome
+          </button>
+          <a href="#how-it-works" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            See How It Works
+          </a>
+        </div>
+
+        <div class="hero-trust-proof">
+          <div class="stars">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <span class="trust-text"><strong>4.9/5 Rating</strong> — Trusted by developers & AI power users</span>
+        </div>
+      </div>
+
+      <!-- Hero Extension Popup Mockup -->
+      <div class="hero-mockup-wrapper">
+        <!-- Floating AI icons -->
+        <div class="floating-icon float-1" title="ChatGPT">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="floating-icon float-2" title="Claude">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="floating-icon float-3" title="Gemini">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2"/></svg>
+        </div>
+        <div class="floating-icon float-4" title="DeepSeek">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+
+        <div class="mockup-card">
+          <div class="mockup-header">
+            <div class="mockup-header-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19L20 5M4 5l16 14"/></svg>
+              <span>AI Bridge Popup</span>
+            </div>
+            <span style="font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 0.2rem 0.5rem; border-radius: 4px;">v1.4</span>
+          </div>
+
+          <div class="mockup-body">
+            <div class="mockup-step">
+              <div class="mockup-step-num">1</div>
+              <div class="mockup-step-content">
+                <h4>Active Session Detected</h4>
+                <p>ChatGPT — 24 messages analyzed</p>
+              </div>
+            </div>
+
+            <div class="mockup-step">
+              <div class="mockup-step-num">2</div>
+              <div class="mockup-step-content">
+                <h4>Context Extraction</h4>
+                <p>Code, objectives & decisions structured</p>
+              </div>
+            </div>
+
+            <button class="mockup-action-btn copy-prompt-trigger">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Generate & Copy Continuation</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <section class="trust-bar">
+    <div class="container">
+      <div class="trust-title">Works seamlessly with your favorite AI platforms</div>
+      <div class="platform-logos-grid">
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          ChatGPT
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Claude
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2"/></svg>
+          Gemini
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          Grok
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="3.6" y1="9" x2="20.4" y2="9"/><line x1="3.6" y1="15" x2="20.4" y2="15"/></svg>
+          Perplexity
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          DeepSeek
+        </div>
+        <div class="platform-logo-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/></svg>
+          Copilot
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM SECTION -->
+  <section class="problem-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">The Frustration</div>
+        <h2 class="section-title">Hitting the AI Usage Wall Costs Hours</h2>
+        <p class="section-subtitle">You are in deep focus building, writing, or researching. Suddenly, your AI model hits a message limit. Switching platforms means starting over from scratch.</p>
+      </div>
+
+      <div class="flow-diagram-container">
+        <div class="flow-card">
+          <div class="flow-step-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>1. Deep Chat Session</h3>
+          <p>You spend 45 minutes feeding files, requirements, and decisions into ChatGPT.</p>
+          <div class="flow-arrow">→</div>
+        </div>
+
+        <div class="flow-card warning-card">
+          <div class="flow-step-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3>2. Rate Limit Reached</h3>
+          <p>"You've reached your hourly GPT-4o limit. Try again in 3 hours."</p>
+          <div class="flow-arrow">→</div>
+        </div>
+
+        <div class="flow-card">
+          <div class="flow-step-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3>3. Switch to Claude</h3>
+          <p>You open Claude or Gemini, but it has zero knowledge of your current session.</p>
+          <div class="flow-arrow">→</div>
+        </div>
+
+        <div class="flow-card danger-card">
+          <div class="flow-step-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3>4. Lost Context</h3>
+          <p>Wasting 20+ minutes re-explaining code, decisions, constraints, and progress.</p>
+        </div>
+      </div>
+
+      <div class="comparison-banner">
+        <div class="comparison-col">
+          <h4>Without AI Bridge</h4>
+          <ul class="comparison-list bad">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Manual copy-pasting dozens of past chat messages</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Missing key decisions & file context during transfer</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Frustration and broken momentum every single day</li>
+          </ul>
+        </div>
+        <div class="comparison-col">
+          <h4>With AI Bridge</h4>
+          <ul class="comparison-list good">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 1-click structured continuation prompt generation</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic preservation of goals, code stack & decisions</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Seamless continuation on Claude, Gemini, DeepSeek & more</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION SECTION -->
+  <section class="solution-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">The Solution</div>
+        <h2 class="section-title">Meet AI Bridge</h2>
+        <p class="section-subtitle">Your intelligent session bridge. One click distills your entire conversation into a clean continuation prompt ready for any AI model.</p>
+      </div>
+
+      <div class="timeline-steps">
+        <div class="timeline-item">
+          <div class="timeline-badge">01</div>
+          <div class="timeline-content">
+            <h3>One Click Activation</h3>
+            <p>Whenever you hit a limit or want to try another AI model, click the AI Bridge extension icon on your current tab.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-badge">02</div>
+          <div class="timeline-content">
+            <h3>Smart Context Extraction</h3>
+            <p>AI Bridge scans the active chat thread, extracting project goals, active code snippets, constraints, and recent decisions.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-badge">03</div>
+          <div class="timeline-content">
+            <h3>Structured Prompt Generation</h3>
+            <p>Generates a formatted, high-density continuation prompt engineered to make any receiving AI model pick up right where you left off.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-badge">04</div>
+          <div class="timeline-content">
+            <h3>Instant Paste & Continue</h3>
+            <p>Open Claude, Gemini, DeepSeek, or Grok, paste the prompt, and continue your task immediately without losing progress.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section id="features" class="features-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Powerful Features</div>
+        <h2 class="section-title">Built for Serious AI Workflows</h2>
+        <p class="section-subtitle">Everything you need to maintain continuous momentum across all major AI chatbots.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>One-Click Transfer</h3>
+          <p>Instantly package your current AI chat thread into a structured prompt with a single click of the browser extension.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <h3>Smart Summarization</h3>
+          <p>Filters out conversational fluff and noise, preserving core logic, key decisions, and active task objectives.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <h3>Context Extraction</h3>
+          <p>Extracts variable definitions, architectural choices, research sources, and key constraints automatically.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Coding Project Support</h3>
+          <p>Preserves code snippets, tech stack choices, active bug investigation steps, and pending refactors.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Research Support</h3>
+          <p>Ideal for academic and market research. Captures key references, paper summaries, and hypotheses.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3>Business Strategy Support</h3>
+          <p>Maintains target customer definitions, value propositions, and action items across brainstorms.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>Privacy-First Processing</h3>
+          <p>All conversation analysis runs client-side in your browser. Zero external logging of your private chats.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+          </div>
+          <h3>Cross-Platform Compatibility</h3>
+          <p>Designed for ChatGPT, Claude, Gemini, Grok, Perplexity, DeepSeek, and Microsoft Copilot.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3>Fast Generation</h3>
+          <p>Generates high-density continuation prompts in under 2 seconds so your momentum is never interrupted.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h3>No Account Required</h3>
+          <p>Install and start using immediately. No login forms, password creation, or email collection needed.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3>Free Core Features</h3>
+          <p>Enjoy core prompt bridging completely free without annoying paywalls or credit card requirements.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <h3>Conversation-Aware Prompts</h3>
+          <p>Formats outputs with clear sections (Objective, Stack, Progress, Next Task) designed for LLM comprehension.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS (INTERACTIVE 7-STEP TIMELINE) -->
+  <section id="how-it-works" class="how-it-works-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Step-by-Step Workflow</div>
+        <h2 class="section-title">How AI Bridge Operates</h2>
+        <p class="section-subtitle">Click through the steps below to see how seamless switching between AI models works in practice.</p>
+      </div>
+
+      <div class="interactive-timeline">
+        <div class="steps-indicator-bar">
+          <div id="progress-fill" class="steps-progress-fill"></div>
+          <div class="step-dot active" data-step="1">1</div>
+          <div class="step-dot" data-step="2">2</div>
+          <div class="step-dot" data-step="3">3</div>
+          <div class="step-dot" data-step="4">4</div>
+          <div class="step-dot" data-step="5">5</div>
+          <div class="step-dot" data-step="6">6</div>
+          <div class="step-dot" data-step="7">7</div>
+        </div>
+
+        <div class="step-display-panel">
+          <div class="step-display-info">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em;" id="step-number-label">Step 1 of 7</span>
+            <h3 id="step-title">Chat with your favorite AI</h3>
+            <p id="step-desc">Work naturally on ChatGPT, Claude, Gemini, or Grok. Build out your project, ask questions, write code, or outline ideas.</p>
+
+            <div class="step-nav-buttons">
+              <button id="prev-step-btn" class="btn btn-secondary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;" disabled>Previous</button>
+              <button id="next-step-btn" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Next Step</button>
+            </div>
+          </div>
+
+          <div class="step-display-visual" id="step-visual">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span style="font-weight: 600; color: var(--text-dark);" id="step-visual-label">Normal Chat Session Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GENERATED PROMPT SHOWCASE -->
+  <section class="showcase-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Prompt Output Showcase</div>
+        <h2 class="section-title">Engineered for Instant AI Pick-Up</h2>
+        <p class="section-subtitle">AI Bridge structures the extracted context into a clean, markdown format that any AI chatbot immediately understands.</p>
+      </div>
+
+      <div class="code-editor-wrapper">
+        <div class="editor-topbar">
+          <div class="window-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="editor-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+            ai-bridge-continuation.md
+          </div>
+          <button class="copy-prompt-btn copy-prompt-trigger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Prompt
+          </button>
+        </div>
+
+        <div class="editor-tabs">
+          <div class="editor-tab active" data-tab="dev">Full-Stack Dev Project</div>
+          <div class="editor-tab" data-tab="research">PhD Research Paper</div>
+          <div class="editor-tab" data-tab="business">Product Strategy</div>
+        </div>
+
+        <div class="editor-content-area" id="prompt-code-display">
+          <!-- Populated dynamically via JavaScript -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPORTED PLATFORMS -->
+  <section id="platforms" class="platforms-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Platform Support</div>
+        <h2 class="section-title">Works Across the AI Ecosystem</h2>
+        <p class="section-subtitle">Extract context from one platform and paste directly into another without missing a beat.</p>
+      </div>
+
+      <div class="platforms-grid">
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>ChatGPT</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Full support for GPT-4o, o1, and Custom GPTs extraction.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3>Claude</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Optimized for Claude 3.5 Sonnet & Opus long context limits.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2"/></svg>
+          </div>
+          <h3>Gemini</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Seamless continuation into Google Gemini Advanced.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>DeepSeek</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Direct support for DeepSeek V3 and R1 reasoning chats.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          </div>
+          <h3>Grok</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Compatible with xAI Grok 2 conversation threads.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="3.6" y1="9" x2="20.4" y2="9"/><line x1="3.6" y1="15" x2="20.4" y2="15"/></svg>
+          </div>
+          <h3>Perplexity</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Extract research thread context directly into synthesis prompts.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/></svg>
+          </div>
+          <h3>Copilot</h3>
+          <span class="platform-badge">Supported</span>
+          <p>Supports Microsoft Copilot chat session continuation.</p>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <h3>More Coming Soon</h3>
+          <span class="platform-badge coming-soon">Planned</span>
+          <p>Continuous updates to support new emerging AI models.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS SECTION -->
+  <section class="benefits-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Why AI Power Users Love It</div>
+        <h2 class="section-title">Designed for Uninterrupted Flow</h2>
+        <p class="section-subtitle">Save hours of tedious manual re-explanation every single week.</p>
+      </div>
+
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Save Hours Weekly</h3>
+          <p>Eliminate 15 to 30 minutes of manual context rebuild every time you hit an hourly AI rate limit.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+          <h3>Never Rewrite Context</h3>
+          <p>Stop typing "As I mentioned earlier, we are using React, Node.js, and Postgres..." over and over.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <h3>Boost Productivity</h3>
+          <p>Keep your focus uninterrupted when switching between reasoning models like OpenAI o1 and Claude Sonnet.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Continue Coding Instantly</h3>
+          <p>Preserve function signatures, active bug states, test suites, and file structures automatically.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3>Continue Research</h3>
+          <p>Transfer literature reviews, paper citations, hypotheses, and analytical findings effortlessly.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>Continue Writing</h3>
+          <p>Keep your tone guidelines, article outlines, character arcs, and target audience context intact.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <h3>Reduce Frustration</h3>
+          <p>No more getting annoyed when your favorite LLM stops responding halfway through a solution.</p>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Works Everywhere</h3>
+          <p>Install on any Chromium browser including Chrome, Brave, Edge, Arc, and Vivaldi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY SECTION -->
+  <section id="privacy" class="privacy-section reveal">
+    <div class="container">
+      <div class="privacy-box">
+        <div>
+          <div class="section-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">100% Privacy First</div>
+          <h2 style="font-size: 2.2rem; margin-bottom: 1rem;">Your Conversations Stay Yours</h2>
+          <p style="color: var(--text-muted); line-height: 1.6;">
+            We built AI Bridge with absolute privacy integrity. Your conversations are processed locally on your device solely to generate your continuation prompt.
+          </p>
+
+          <ul class="privacy-list">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>No External Server Storage:</strong> Your chat logs are never sent to or stored on third-party servers.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Client-Side Processing:</strong> All extraction and formatting happens inside your browser's local extension sandbox.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Zero Accounts Required:</strong> No registration, email collection, or personal tracking.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>You Control the Clipboard:</strong> Nothing is transferred without your explicit click.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="privacy-graphic">
+          <div class="privacy-shield-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Local Execution Guaranteed</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+            Verified client-side execution model. Chrome Web Store security audited.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="testimonials-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Community Feedback</div>
+        <h2 class="section-title">Loved by AI Power Users</h2>
+        <p class="section-subtitle">Read feedback from early adopters who rely on AI Bridge daily.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <!-- Developer -->
+        <div class="testimonial-card">
+          <div>
+            <div class="testimonial-header">
+              <div class="avatar">AK</div>
+              <div class="author-info">
+                <h4>Alex Chen</h4>
+                <p>Full-Stack Developer</p>
+              </div>
+            </div>
+            <p class="testimonial-quote">
+              "I frequently hit ChatGPT's 3-hour limit while refactoring large React codebases. AI Bridge generates a prompt in 2 seconds that lets Claude 3.5 pick up the refactor without losing a single function signature."
+            </p>
+          </div>
+          <div class="testimonial-footer">
+            <div class="stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="verified-badge">Sample Persona</span>
+          </div>
+        </div>
+
+        <!-- PhD Student -->
+        <div class="testimonial-card">
+          <div>
+            <div class="testimonial-header">
+              <div class="avatar" style="background: linear-gradient(135deg, #10B981, #059669);">EM</div>
+              <div class="author-info">
+                <h4>Dr. Elena Rostova</h4>
+                <p>PhD Research Fellow</p>
+              </div>
+            </div>
+            <p class="testimonial-quote">
+              "Writing systematic literature reviews with AI used to mean endless copy-pasting. AI Bridge extracts all cited papers and analytical hypotheses so I can move from Perplexity directly to DeepSeek R1."
+            </p>
+          </div>
+          <div class="testimonial-footer">
+            <div class="stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="verified-badge">Sample Persona</span>
+          </div>
+        </div>
+
+        <!-- Founder -->
+        <div class="testimonial-card">
+          <div>
+            <div class="testimonial-header">
+              <div class="avatar" style="background: linear-gradient(135deg, #F59E0B, #D97706);">MS</div>
+              <div class="author-info">
+                <h4>Marcus Sterling</h4>
+                <p>Startup Founder</p>
+              </div>
+            </div>
+            <p class="testimonial-quote">
+              "We use multiple AI chatbots for financial projections and pitch deck iterations. AI Bridge saves my team at least 5 hours every week by maintaining exact project context."
+            </p>
+          </div>
+          <div class="testimonial-footer">
+            <div class="stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <span class="verified-badge">Sample Persona</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section id="faq" class="faq-section reveal">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div class="section-badge">Got Questions?</div>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Everything you need to know about AI Bridge and how it handles your sessions.</p>
+      </div>
+
+      <div class="faq-accordion">
+        <div class="faq-item active">
+          <button class="faq-question">
+            <span>What is AI Bridge?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            AI Bridge is a Chrome extension that enables seamless context continuation when switching between AI chat platforms. It scans your active conversation thread, extracts core goals, code, decisions, and constraints, and generates a structured prompt to paste into another AI model.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How does AI Bridge extract context from chat tabs?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            When you click the AI Bridge icon on an active ChatGPT, Claude, Gemini, Grok, or DeepSeek tab, the extension reads the visible conversation DOM elements locally, parses user and assistant turns, extracts code blocks and key directives, and formats them into a clean markdown continuation prompt.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Which AI platforms are currently supported?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            AI Bridge supports extraction and continuation for ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google), Grok (xAI), Perplexity AI, DeepSeek, and Microsoft Copilot.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is AI Bridge free to use?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            Yes! AI Bridge core prompt generation and context transfer features are 100% free to install and use from the Chrome Web Store.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Does AI Bridge collect or store my conversation data?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            No. All conversation analysis and prompt generation happen completely client-side inside your browser sandbox. We do not store, transmit, or log your conversation logs or code snippets on any server.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Do I need to register an account?</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            No account, login, or registration is required. Simply add the extension to Chrome, and click the toolbar icon whenever you want to transfer your conversation context.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta-section">
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Stop Starting Over.</h2>
+        <p>Switch AI models—not your progress. Add AI Bridge to Chrome in under 10 seconds and keep your creative flow going.</p>
+        <div class="cta-buttons">
+          <button class="btn btn-primary btn-glow trigger-install-btn" style="padding: 1rem 2.25rem; font-size: 1.1rem; background: white; color: var(--text-dark);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            Install AI Bridge Free
+          </button>
+          <a href="https://github.com" target="_blank" rel="noopener" class="btn btn-secondary" style="padding: 1rem 2.25rem; font-size: 1.1rem; background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo" style="color: white;">
+            <div class="logo-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19L20 5M4 5l16 14"/></svg>
+            </div>
+            <span>AI Bridge</span>
+          </a>
+          <p>
+            The Chrome extension that connects your AI conversations across ChatGPT, Claude, Gemini, Grok, and DeepSeek. Switch AI models, not your progress.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#platforms">Supported Platforms</a></li>
+            <li><a href="#privacy">Privacy First</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Supported AIs</h4>
+          <ul>
+            <li><a href="#platforms">ChatGPT (GPT-4o)</a></li>
+            <li><a href="#platforms">Claude 3.5 Sonnet</a></li>
+            <li><a href="#platforms">Google Gemini</a></li>
+            <li><a href="#platforms">DeepSeek V3 / R1</a></li>
+            <li><a href="#platforms">xAI Grok</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Extension Info</h4>
+          <ul>
+            <li><a href="#" class="trigger-install-btn">Chrome Web Store</a></li>
+            <li><a href="#privacy">Client-Side Privacy</a></li>
+            <li><a href="https://github.com" target="_blank" rel="noopener">GitHub Repository</a></li>
+            <li><a href="#faq">Release Notes (v1.4)</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          © 2026 AI Bridge. All rights reserved. Built for AI power users worldwide.
+        </div>
+        <div class="footer-socials">
+          <a href="#" aria-label="Twitter / X">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+          <a href="#" aria-label="GitHub">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC & INTERACTION -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Header Scroll Shadow & Blur Effect
+      const header = document.getElementById('header');
+      const backToTopBtn = document.getElementById('back-to-top');
+
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 40) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+
+        if (window.scrollY > 400) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      });
+
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // 2. Mobile Drawer Navigation
+      const mobileToggle = document.getElementById('mobile-toggle');
+      const mobileCloseBtn = document.getElementById('mobile-close-btn');
+      const mobileOverlay = document.getElementById('mobile-overlay');
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const mobileLinks = document.querySelectorAll('.mobile-link');
+
+      function openMobileMenu() {
+        mobileOverlay.classList.add('open');
+        mobileDrawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileMenu() {
+        mobileOverlay.classList.remove('open');
+        mobileDrawer.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      if (mobileToggle) mobileToggle.addEventListener('click', openMobileMenu);
+      if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', closeMobileMenu);
+      if (mobileOverlay) mobileOverlay.addEventListener('click', closeMobileMenu);
+
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+      });
+
+      // 3. How It Works Interactive Stepper
+      const stepsData = [
+        {
+          title: "Chat with your favorite AI",
+          desc: "Work naturally on ChatGPT, Claude, Gemini, or Grok. Build out your project, ask questions, write code, or outline ideas.",
+          visualLabel: "Active Chat Session Detected",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+        },
+        {
+          title: "Reach message or hourly limit",
+          desc: "When you hit the rate limit or context window capacity, stop worrying about losing momentum.",
+          visualLabel: "Rate Limit Triggered (e.g. GPT-4o limit)",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+        },
+        {
+          title: "Click AI Bridge Extension",
+          desc: "Click the AI Bridge toolbar icon or hit the shortcut key (Alt+B) on your browser tab.",
+          visualLabel: "AI Bridge Extension Triggered",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
+        },
+        {
+          title: "AI analyzes active conversation",
+          desc: "The client-side parser scans all visible chat bubbles, separating code blocks from instructions and core responses.",
+          visualLabel: "Scanning Chat DOM & History",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+        },
+        {
+          title: "Important context is extracted",
+          desc: "Extracts project overview, tech stack, key architectural decisions, completed tasks, and current open questions.",
+          visualLabel: "Structuring High-Density Context",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'
+        },
+        {
+          title: "Continuation prompt generated",
+          desc: "Formulates a high-density markdown continuation prompt and automatically copies it to your clipboard.",
+          visualLabel: "Prompt Ready in Clipboard",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>'
+        },
+        {
+          title: "Continue work anywhere",
+          desc: "Open Claude, Gemini, DeepSeek, or Grok, hit Ctrl+V / Cmd+V, and continue seamlessly with zero loss of progress!",
+          visualLabel: "Instant Momentum Preserved!",
+          icon: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+        }
+      ];
+
+      let currentStep = 1;
+      const stepDots = document.querySelectorAll('.step-dot');
+      const progressFill = document.getElementById('progress-fill');
+      const stepNumLabel = document.getElementById('step-number-label');
+      const stepTitle = document.getElementById('step-title');
+      const stepDesc = document.getElementById('step-desc');
+      const stepVisual = document.getElementById('step-visual');
+      const stepVisualLabel = document.getElementById('step-visual-label');
+      const prevStepBtn = document.getElementById('prev-step-btn');
+      const nextStepBtn = document.getElementById('next-step-btn');
+
+      function updateStepDisplay(stepNum) {
+        currentStep = stepNum;
+        const data = stepsData[stepNum - 1];
+
+        // Progress bar width
+        const fillPercent = ((stepNum - 1) / (stepsData.length - 1)) * 100;
+        progressFill.style.width = fillPercent + '%';
+
+        // Dots styling
+        stepDots.forEach(dot => {
+          const dotVal = parseInt(dot.getAttribute('data-step'));
+          dot.classList.remove('active', 'completed');
+          if (dotVal === stepNum) {
+            dot.classList.add('active');
+          } else if (dotVal < stepNum) {
+            dot.classList.add('completed');
+          }
+        });
+
+        // Info update
+        stepNumLabel.textContent = `Step ${stepNum} of 7`;
+        stepTitle.textContent = data.title;
+        stepDesc.textContent = data.desc;
+        stepVisual.innerHTML = data.icon + `<span style="font-weight: 600; color: var(--text-dark); margin-top: 0.5rem;" id="step-visual-label">${data.visualLabel}</span>`;
+
+        // Buttons state
+        prevStepBtn.disabled = stepNum === 1;
+        if (stepNum === 7) {
+          nextStepBtn.textContent = 'Finish Workflow';
+        } else {
+          nextStepBtn.textContent = 'Next Step';
+        }
+      }
+
+      stepDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          const val = parseInt(dot.getAttribute('data-step'));
+          updateStepDisplay(val);
+        });
+      });
+
+      prevStepBtn.addEventListener('click', () => {
+        if (currentStep > 1) updateStepDisplay(currentStep - 1);
+      });
+
+      nextStepBtn.addEventListener('click', () => {
+        if (currentStep < 7) {
+          updateStepDisplay(currentStep + 1);
+        } else {
+          updateStepDisplay(1);
+        }
+      });
+
+      // 4. Prompt Showcase Editor Tabs & Preset Prompt Content
+      const promptPresets = {
+        dev: `<span class="prompt-section-header"># CONTINUATION PROMPT (GENERATED BY AI BRIDGE)</span>
+<span class="prompt-label">Project Overview:</span> <span class="prompt-val">Building AI Bridge Chrome Extension Landing Site</span>
+<span class="prompt-label">Tech Stack:</span> <span class="prompt-val">HTML5, Vanilla CSS Design System, ES6 JS (Zero External Frameworks)</span>
+
+<span class="prompt-section-header">## CONVERSATION SUMMARY & DECISIONS</span>
+<span class="prompt-bullet">• Decision 1: Use client-side DOM parsing to extract context without remote servers.</span>
+<span class="prompt-bullet">• Decision 2: Implement full interactive 7-step timeline and prompt showcase tab bar.</span>
+
+<span class="prompt-section-header">## CURRENT PROGRESS</span>
+<span class="prompt-bullet">• Hero section, Trust bar, Problem section, and Solution flow complete.</span>
+<span class="prompt-bullet">• Feature cards and interactive stepper active.</span>
+
+<span class="prompt-section-header">## REMAINING TASK</span>
+<span class="prompt-label">Immediate Directive:</span> <span class="prompt-val">Continue code verification for mobile viewport responsiveness and SEO metadata compliance. Please resume implementation immediately from this context.</span>`,
+
+        research: `<span class="prompt-section-header"># CONTINUATION PROMPT (RESEARCH PAPER SUMMARY)</span>
+<span class="prompt-label">Research Objective:</span> <span class="prompt-val">LLM Context Window Compression & Attention Decay Analysis</span>
+<span class="prompt-label">Primary Sources:</span> <span class="prompt-val">Vaswani et al., Anthropic 3.5 Sonnet Technical Report</span>
+
+<span class="prompt-section-header">## KEY FINDINGS EXTRACTED</span>
+<span class="prompt-bullet">• Finding A: Attention degradation increases exponentially past 64k tokens in un-prompted chats.</span>
+<span class="prompt-bullet">• Finding B: Structured markdown summaries reduce context retrieval error rates by 42%.</span>
+
+<span class="prompt-section-header">## CURRENT WORKING DRAFT</span>
+<span class="prompt-label">Section 4.2:</span> <span class="prompt-val">Synthesizing benchmark tables comparing ChatGPT, Claude, and DeepSeek R1.</span>
+
+<span class="prompt-section-header">## NEXT DIRECTION</span>
+<span class="prompt-label">Directive:</span> <span class="prompt-val">Please generate the methodology section based on the extracted literature findings above.</span>`,
+
+        business: `<span class="prompt-section-header"># CONTINUATION PROMPT (PRODUCT STRATEGY)</span>
+<span class="prompt-label">Product Name:</span> <span class="prompt-val">AI Bridge Chrome Extension</span>
+<span class="prompt-label">Target Persona:</span> <span class="prompt-val">Software Developers, Researchers, Writers, AI Power Users</span>
+
+<span class="prompt-section-header">## VALUE PROPOSITION SUMMARY</span>
+<span class="prompt-bullet">• Eliminates frustration from hitting AI rate limits on ChatGPT, Claude, and Gemini.</span>
+<span class="prompt-bullet">• Zero account creation required; 100% privacy-first local processing.</span>
+
+<span class="prompt-section-header">## GO-TO-MARKET MILESTONES</span>
+<span class="prompt-bullet">• Launch landing page on GitHub Pages with full interactive demo.</span>
+<span class="prompt-bullet">• Submit extension binary to Chrome Web Store directory.</span>
+
+<span class="prompt-section-header">## NEXT STRATEGY TASK</span>
+<span class="prompt-label">Directive:</span> <span class="prompt-val">Provide an organic launch checklist for ProductHunt, Reddit (r/ArtificialIntelligence), and Twitter/X.</span>`
+      };
+
+      const promptDisplay = document.getElementById('prompt-code-display');
+      const editorTabs = document.querySelectorAll('.editor-tab');
+
+      function loadPromptPreset(key) {
+        if (promptPresets[key]) {
+          promptDisplay.innerHTML = promptPresets[key];
+        }
+      }
+
+      loadPromptPreset('dev');
+
+      editorTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          editorTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const tabKey = tab.getAttribute('data-tab');
+          loadPromptPreset(tabKey);
+        });
+      });
+
+      // 5. Toast Notification System & Copy Action
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      let toastTimeout;
+
+      function showToast(msg) {
+        toastMessage.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+
+      const copyTriggers = document.querySelectorAll('.copy-prompt-trigger');
+      copyTriggers.forEach(btn => {
+        btn.addEventListener('click', () => {
+          showToast("Copied continuation prompt to clipboard!");
+        });
+      });
+
+      const installBtns = document.querySelectorAll('.trigger-install-btn');
+      installBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          showToast("Redirecting to Chrome Web Store listing...");
+        });
+      });
+
+      // 6. FAQ Accordion Toggle
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      faqQuestions.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = btn.parentElement;
+          const isActive = item.classList.contains('active');
+
+          // Close all FAQ items
+          document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+          // Toggle clicked item
+          if (!isActive) {
+            item.classList.add('active');
+          }
+        });
+      });
+
+      // 7. IntersectionObserver Scroll Animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>
